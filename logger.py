@@ -8,7 +8,6 @@ from sys import exit
 import os
 
 data_number = []
-ser = None
 
 ports = list(serial.tools.list_ports.comports())
 try:
@@ -21,11 +20,9 @@ try:
                                 stopbits=serial.STOPBITS_ONE, 
                                 bytesize=8)
             print(f"Connected to {p.description}")
-        if ser == None:
-            raise Exception()
 except Exception as e:
-    print("Couldnt find CP210x")
-    exit("Exiting...")
+    print(e)
+    exit("Couldn't connect!")
 
 #Read UART
 line = (ser.readline().decode('ascii').strip())
