@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 from sys import exit
 import os
+import string
 
 data_number = []
 
@@ -14,7 +15,7 @@ try:
     for p in ports:
         if 'CP210' in p.description:
             ser = serial.Serial(p.device, 
-                                baudrate=9600, 
+                                baudrate=115200, 
                                 timeout=None, 
                                 parity=serial.PARITY_NONE, 
                                 stopbits=serial.STOPBITS_ONE, 
@@ -26,8 +27,10 @@ except Exception as e:
 
 #Read UART
 line = (ser.readline().decode('ascii').strip())
+line = ''.join(ch for ch in line if ch in string.printable)
 # Split received string by comma
 values = line.split(',')
+# Append values to show it in plt later
 for v in values:
     try:
         data_number.append((int(v)/4095)*1.25)
