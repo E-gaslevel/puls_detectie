@@ -25,35 +25,30 @@ except Exception as e:
     print(e)
     exit("Couldn't connect!")
 
-ans = input("Do you want to to receive data? Press y/n ")
-if ans == "y":
-    
-    #Read UART
-    line = (ser.readline().decode('ascii').strip())
-    line = ''.join(ch for ch in line if ch in string.printable)
-    # Split received string by comma
-    values = line.split(',')
-    # Append values to show it in plt later
-    for v in values:
-        try:
-            data_number.append((int(v)/4095)*1.25)
-        except ValueError:
-            pass
 
-    # Check for new filename, dont overwrite old reading file
-    count = 0
-    while True:
-        filename = os.path.join("readings", f"reading{count}.txt")
-        if not os.path.exists(filename):
-            break
-        count += 1
-
-    # Write to .txt
-    with open(filename, "w") as file:
-        file.write('\n'.join(values))
-else:
-    exit()
     
+#Read UART
+line = (ser.readline().decode('ascii').strip())
+line = ''.join(ch for ch in line if ch in string.printable)
+# Split received string by comma
+values = line.split(',')
+# Append values to show it in plt later
+for v in values:
+    try:
+        data_number.append((int(v)/4095)*1.25)
+    except ValueError:
+        pass
+# Check for new filename, dont overwrite old reading file
+count = 0
+while True:
+    filename = os.path.join("readings", f"reading{count}.txt")
+    if not os.path.exists(filename):
+        break
+    count += 1
+# Write to .txt
+with open(filename, "w") as file:
+    file.write('\n'.join(values))
+
 # x = np.arange(0., 5000., 1)
 
 # plt.axis([0, 5000, -0.1, 1.3])
