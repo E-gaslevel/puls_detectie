@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Path to your text file
-file_path = "readings/reading9.txt"
+file_path = "readings/8kHz.txt"
 
 # Initialize an empty list
 values = []
@@ -31,7 +31,7 @@ for v in values:
     filter_values.append(output)
 # ((int(v)/4095)*1.25)
 
-plt.axis([0, len(filter_values), .95, 3])
+plt.axis([0, len(filter_values), .6, 3])
 plt.plot(x, filter_values)
 # plt.plot(x, values)
 plt.show()
