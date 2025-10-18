@@ -3,10 +3,9 @@ import serial.tools.list_ports
 
 from sys import exit
 import os
-import string
-
 
 def connect_UART():
+    # Connects to uC using pySerial, finds automatically the right device
     ports = list(serial.tools.list_ports.comports())
     try:
         for p in ports:
@@ -23,42 +22,37 @@ def connect_UART():
         print(e)
         exit("Couldn't connect!")
         
-# This function sends over UART the sample parameters, C program will read those and assign those value
-# Filename is also msg to uC
 def send_parameter_UART(ser, sample):
-    filename = f"f{sample[0]}d{sample[1]}n{sample[2]}\n"
-    print(f"File name will be {filename}")
-    ser.write(filename.encode())
-    return filename
+    # This function sends over UART the sample parameters, C program will read those and assign those values to the measurement
+    filename_wo_index = f"f{sample[0]}d{sample[1]}n{sample[2]}"
+    print(f"Sending parameters: frequency: {sample[0]}, duty cycle: {sample[1]}, number of pulses: {sample[2]}")
+    ser.write(f"{filename_wo_index}\n".encode())
+    return filename_wo_index
     
-def read_UART_and_save(ser, _filename):
-    #Read UART
+def read_UART_and_save(ser, filename_wo_index):
+    # The program receives all data from a measurement in one line, it will read that and split all values by commas
+    # After that there will be a check if a .txt file exists, if so count+1(this way, no data is lost)
+    # At last save to the given filename
     line = (ser.readline().decode('ascii').strip())
-    line = ''.join(ch for ch in line if ch in string.printable)
-    # Split received string by comma
     values = line.split(',')
 
-    # Check for new filename, dont overwrite old reading file, add index_number to filename
     count = 0
-    filename = _filename + "_" + str(count)
     while True:
-        if os.path.exists(filename):
+        file_to_save = os.path.join("readings", f"{filename_wo_index}_{count}.txt")
+        if os.path.exists(file_to_save):
             count += 1
-            filename = filename + "_" + count
         else:
-            file_to_save = os.path.join("readings", f"{filename}.txt")
             break
-        
 
-    # Write to .txt
     with open(file_to_save, "w") as file:
         file.write('\n'.join(values))
+        print(f"Data saved to {file_to_save}")
     
 if __name__ == "__main__":
     ser = connect_UART()
     
-    # Voer hier sample parameters, every list is a new measurement 
-    parameters = [[50000, 100, 2], [20000, 50, 1]]
+    # Fill parameters in, every inner list is a new measurement, C program will wait for those and run forever
+    parameters = [[50000, 100, 2], [20000, 50, 1], [1000, 75, 3]]
     for p in parameters:
         filename = send_parameter_UART(ser, p)
         read_UART_and_save(ser, filename)
