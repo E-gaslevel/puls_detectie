@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Path to your text file
-file_path = "readings/reading1.txt"
+file_path = "50_readings/50_f210000d25n3_0.txt"
 
 # Initialize an empty list
 values = []
@@ -15,7 +15,7 @@ with open(file_path, "r") as file:
         if value:  # Skip empty lines
             try:
                 # Convert to float (change to int() if needed)
-                values.append(int(value)/4095.0 * 1.25)
+                values.append(int(value)/4095.0 * 2.5)
             except ValueError:
                 print(f"Warning: could not convert '{value}' to a number.")
                 
@@ -26,6 +26,6 @@ x = np.arange(len(values))  # x will have the same length as values
 
 # ((int(v)/4095)*1.25)
 
-plt.axis([0, len(values), -0.1, 1.8])
+plt.axis([0, len(values), 0.8, 2.8])
 plt.plot(x, values)
 plt.show()
