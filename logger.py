@@ -19,6 +19,9 @@ def connect_UART():
                                     stopbits=serial.STOPBITS_ONE, 
                                     bytesize=8)
                 print(f"Connected to {p.description}")
+                n = ser.in_waiting
+                if n:
+                    ser.read(n)
                 return ser 
     except Exception as e:
         print(e)
@@ -38,30 +41,29 @@ def read_UART_and_save(ser, filename_wo_index):
     values = []
     temp = ""
 
-    while len(values) < 4000:
+    while len(values) < 4500:
         n = ser.in_waiting
         if not n:
             continue
 
         chunk = ser.read(n).decode("ascii")
         temp += chunk
-
-        # split complete lines
+        
         lines = temp.split('\n')
         for line in lines[:-1]:
             values.append(line + '\n')
-            if len(values) >= 4000:
+            if len(values) >= 4500:
                 break
 
-        # keep unfinished line
         temp = lines[-1]
 
-    # while (len(values) < 4000) and (value := ser.readline()):
-    #     values.append(value.decode("ascii"))
     sleep(0.5)
+    n = ser.in_waiting
+    if n:
+        ser.read(n)
     count = 0
     while True:
-        file_to_save = os.path.join("readings1", f"test_{filename_wo_index}_{count}.txt")
+        file_to_save = os.path.join("fles4\\meting1", f"18.8_{filename_wo_index}_{count}.txt")
         if os.path.exists(file_to_save):
             count += 1
         else:
@@ -75,43 +77,18 @@ def read_UART_and_save(ser, filename_wo_index):
     
 if __name__ == "__main__":
     ser = connect_UART()
-    
-    # Fill parameters in, every inner list is a new measurement, C program will wait for those and run forever
-    parameters = [
-        [10000, 25, 1], [10000, 25, 3], [10000, 25, 8],
-        [10000, 50, 1], [10000, 50, 3], [10000, 50, 8],
-        [10000, 75, 1], [10000, 75, 3], [10000, 75, 8],
-        [110000, 25, 1], [110000, 25, 3], [110000, 25, 8],
-        [110000, 50, 1], [110000, 50, 3], [110000, 50, 8],
-        [110000, 75, 1], [110000, 75, 3], [110000, 75, 8],
-        [210000, 25, 1], [210000, 25, 3], [210000, 25, 8],
-        [210000, 50, 1], [210000, 50, 3], [210000, 50, 8],
-        [210000, 75, 1], [210000, 75, 3], [210000, 75, 8],
-        [310000, 25, 1], [310000, 25, 3], [310000, 25, 8],
-        [310000, 50, 1], [310000, 50, 3], [310000, 50, 8],
-        [310000, 75, 1], [310000, 75, 3], [310000, 75, 8],
-        [410000, 25, 1], [410000, 25, 3], [410000, 25, 8],
-        [410000, 50, 1], [410000, 50, 3], [410000, 50, 8],
-        [410000, 75, 1], [410000, 75, 3], [410000, 75, 8],
-        [510000, 25, 1], [510000, 25, 3], [510000, 25, 8],
-        [510000, 50, 1], [510000, 50, 3], [510000, 50, 8],
-        [510000, 75, 1], [510000, 75, 3], [510000, 75, 8],
-        [610000, 25, 1], [610000, 25, 3], [610000, 25, 8],
-        [610000, 50, 1], [610000, 50, 3], [610000, 50, 8],
-        [610000, 75, 1], [610000, 75, 3], [610000, 75, 8],
-        [710000, 25, 1], [710000, 25, 3], [710000, 25, 8],
-        [710000, 50, 1], [710000, 50, 3], [710000, 50, 8],
-        [710000, 75, 1], [710000, 75, 3], [710000, 75, 8],
-        [810000, 25, 1], [810000, 25, 3], [810000, 25, 8],
-        [810000, 50, 1], [810000, 50, 3], [810000, 50, 8],
-        [810000, 75, 1], [810000, 75, 3], [810000, 75, 8],
-        [910000, 25, 1], [910000, 25, 3], [910000, 25, 8],
-        [910000, 50, 1], [910000, 50, 3], [910000, 50, 8],
-        [910000, 75, 1], [910000, 75, 3], [910000, 75, 8],
-        [1000000, 25, 1], [1000000, 25, 3], [1000000, 25, 8],
-        [1000000, 50, 1], [1000000, 50, 3], [1000000, 50, 8],
-        [1000000, 75, 1], [1000000, 75, 3], [1000000, 75, 8]
+
+    freqs = [
+        20000, 27000, 37000, 50000, 67000, 90000,
+        120000, 165000, 220000, 300000, 400000, 550000, 750000, 1000000
     ]
-    for p in parameters:
-        filename = send_parameter_UART(ser, p)
-        read_UART_and_save(ser, filename)
+
+    n_values = range(1, 9)  # 1 t/m 8
+    d_values = [25, 50, 75]
+
+    for freq in freqs:
+        for d in d_values:
+            for n in n_values:
+                p = [freq, d, n]
+                filename = send_parameter_UART(ser, p)
+                read_UART_and_save(ser, filename)
