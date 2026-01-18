@@ -63,7 +63,7 @@ def read_UART_and_save(ser, filename_wo_index):
         ser.read(n)
     count = 0
     while True:
-        file_to_save = os.path.join("fles4\\meting1", f"18.8_{filename_wo_index}_{count}.txt")
+        file_to_save = os.path.join("fles5\\meting5", f"26.9_{filename_wo_index}_{count}.txt")
         if os.path.exists(file_to_save):
             count += 1
         else:
